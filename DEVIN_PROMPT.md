@@ -50,6 +50,7 @@
 - `app/src/pages/` — `Catalog.tsx` (фильтры в URL через useSearchParams), `ProductPage.tsx` (кнопка «назад» через navigate(-1)), `Additives.tsx`
 - `app/src/components/Layout.tsx` — поллинг `meta.json` раз в минуту, баннер «Данные обновились» при новом build
 - `app/src/lib/data.ts` — загрузка данных, ОБЯЗАТЕЛЬНО относительные пути `./data/...` (GitHub Pages subpath)
+- `app/src/pages/Scan.tsx` + `app/src/lib/off.ts` — сканер штрих-кодов (ZXing, EAN/UPC) → Open Food Facts API → мэтчинг Е-кодов по `additives.json` (суб-коды E322i → E322) → вердикт на русском. Без бэкенда, всё на клиенте
 
 ## Команды
 
