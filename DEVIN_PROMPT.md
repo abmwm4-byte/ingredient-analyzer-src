@@ -51,6 +51,7 @@
 - `app/src/components/Layout.tsx` — поллинг `meta.json` раз в минуту, баннер «Данные обновились» при новом build
 - `app/src/lib/data.ts` — загрузка данных, ОБЯЗАТЕЛЬНО относительные пути `./data/...` (GitHub Pages subpath)
 - `app/src/pages/Scan.tsx` + `app/src/lib/off.ts` — сканер штрих-кодов (ZXing, EAN/UPC) → Open Food Facts API → мэтчинг Е-кодов по `additives.json` (суб-коды E322i → E322) → вердикт на русском. Без бэкенда, всё на клиенте
+- `app/src/lib/fr_additives.ts` — словарь французских названий добавок (~180 терминов) → Е-код/имя из базы; мэтчинг по нормализованному тексту без пересечений спанов. История сканов — `app/src/lib/scanHistory.ts` (localStorage, 50 шт)
 
 ## Команды
 

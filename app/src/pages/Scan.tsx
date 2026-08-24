@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { BrowserMultiFormatReader } from '@zxing/browser'
 import type { IScannerControls } from '@zxing/browser'
 import { BarcodeFormat, DecodeHintType } from '@zxing/library'
-import { ArrowLeft, Camera, CameraOff, Keyboard, Loader2, ScanBarcode, ShieldCheck, AlertTriangle, ChevronDown, Info } from 'lucide-react'
+import { ArrowLeft, Camera, CameraOff, Keyboard, Loader2, ScanBarcode, ShieldCheck, AlertTriangle, ChevronDown, Info, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { analyzeBarcode } from '@/lib/off'
 import type { ScanResult, OffStatus } from '@/lib/off'
+import { loadScanHistory, saveScan, clearScanHistory } from '@/lib/scanHistory'
+import type { ScanHistoryItem } from '@/lib/scanHistory'
 import { VERDICTS, FREQ } from '@/types'
 import { VerdictBadge, LevelBadge, RiskMeter } from '@/components/Badges'
 
@@ -33,6 +35,7 @@ export default function Scan() {
   const [manual, setManual] = useState('')
   const [showFull, setShowFull] = useState(false)
   const [showManual, setShowManual] = useState(false)
+  const [history, setHistory] = useState<ScanHistoryItem[]>(loadScanHistory)
 
   const stopScanner = () => {
     controlsRef.current?.stop()
@@ -67,8 +70,10 @@ export default function Scan() {
     setPhase({ kind: 'loading', barcode: code })
     setShowFull(false)
     const r = await analyzeBarcode(code)
-    if (r.status === 'ok' && r.result) setPhase({ kind: 'result', result: r.result })
-    else setPhase({ kind: 'fail', status: r.status, barcode: code })
+    if (r.status === 'ok' && r.result) {
+      setHistory(saveScan(r.result))
+      setPhase({ kind: 'result', result: r.result })
+    } else setPhase({ kind: 'fail', status: r.status, barcode: code })
   }
 
   const startScan = () => {
@@ -167,6 +172,35 @@ export default function Scan() {
 
       {/* Результат */}
       {phase.kind === 'result' && <ResultCard result={phase.result} showFull={showFull} setShowFull={setShowFull} onRescan={startScan} />}
+
+      {/* История сканирований */}
+      {(phase.kind === 'idle' || phase.kind === 'fail') && history.length > 0 && (
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs font-medium text-stone-500 uppercase tracking-wide">Мои сканы ({history.length})</div>
+            <button onClick={() => { clearScanHistory(); setHistory([]) }}
+              className="text-[11px] text-stone-400 hover:text-red-600 transition flex items-center gap-1">
+              <Trash2 size={12} /> Очистить
+            </button>
+          </div>
+          <div className="space-y-2">
+            {history.map(h => (
+              <button key={h.result.barcode}
+                onClick={() => { setShowFull(false); setPhase({ kind: 'result', result: h.result }) }}
+                className="w-full bg-white rounded-2xl p-3 ring-1 ring-stone-200 flex items-center gap-3 text-left hover:ring-emerald-300 transition">
+                {h.result.img
+                  ? <img src={h.result.img} alt="" className="w-11 h-11 rounded-xl object-contain bg-stone-50 shrink-0" />
+                  : <div className="w-11 h-11 rounded-xl bg-stone-100 flex items-center justify-center shrink-0"><ScanBarcode size={18} className="text-stone-300" /></div>}
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium truncate">{h.result.name}</div>
+                  <div className="text-[11px] text-stone-400">{new Date(h.ts).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })} · {h.result.adds.length} добавок</div>
+                </div>
+                <VerdictBadge verdict={h.result.verdict} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

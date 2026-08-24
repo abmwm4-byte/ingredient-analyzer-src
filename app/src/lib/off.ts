@@ -1,5 +1,6 @@
 import type { AdditiveRef, Verdict } from '@/types'
 import { loadAdditives } from './data'
+import { normFr, matchFrTerms } from './fr_additives'
 
 export interface ScanResult {
   barcode: string
@@ -60,11 +61,19 @@ export async function analyzeBarcode(barcode: string): Promise<OffResponse> {
 
   const found = new Map<string, AdditiveRef>()
   const unknown: string[] = []
-  for (const c of codes) {
+  const lookupCode = (c: string) =>
     // суб-коды вида E322i / E150d сводим к базовому коду, если точного нет в базе
-    const a = byCode.get(c) ?? byCode.get(c.replace(/[A-Z]+$/, '')) ?? byCode.get(c.slice(0, 4))
+    byCode.get(c) ?? byCode.get(c.replace(/[A-Z]+$/, '')) ?? byCode.get(c.slice(0, 4))
+  for (const c of codes) {
+    const a = lookupCode(c)
     if (a) found.set(a.name, a)
     else unknown.push(c)
+  }
+  // французские названия добавок (текст состава)
+  const normText = normFr(ingredients)
+  for (const [, target] of matchFrTerms(normText)) {
+    const a = /^E\d/i.test(target) ? lookupCode(target.toUpperCase()) : byName.get(target)
+    if (a) found.set(a.name, a)
   }
   for (const [re, name] of FR_NAMES) {
     const a = byName.get(name)

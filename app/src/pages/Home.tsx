@@ -66,7 +66,7 @@ export default function Home() {
               Проверить
             </button>
           </form>
-          <Link to="/scan" className="mt-3 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition text-sm font-medium">
+          <Link to="/scan" className="mt-3 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-emerald-800 hover:bg-emerald-50 transition text-sm font-semibold shadow-sm">
             <ScanBarcode size={18} /> Сканировать штрих-код камерой
           </Link>
           <div className="mt-6 flex flex-wrap gap-2 text-xs">
