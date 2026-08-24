@@ -11,13 +11,23 @@ import type { ScanHistoryItem } from '@/lib/scanHistory'
 import { VERDICTS, FREQ } from '@/types'
 import { VerdictBadge, LevelBadge, RiskMeter } from '@/components/Badges'
 
-const HINTS = new Map([
+const HINTS = new Map<DecodeHintType, unknown>([
   [DecodeHintType.POSSIBLE_FORMATS, [
     BarcodeFormat.EAN_13, BarcodeFormat.EAN_8,
     BarcodeFormat.UPC_A, BarcodeFormat.UPC_E,
     BarcodeFormat.CODE_128, BarcodeFormat.QR_CODE,
   ]],
+  [DecodeHintType.TRY_HARDER, true],
 ])
+
+const CAMERA_CONSTRAINTS: MediaStreamConstraints = {
+  audio: false,
+  video: {
+    facingMode: { ideal: 'environment' },
+    width: { ideal: 1920 },
+    height: { ideal: 1080 },
+  },
+}
 
 type Phase =
   | { kind: 'idle' }
@@ -34,7 +44,7 @@ export default function Scan() {
   const [camError, setCamError] = useState<string | null>(null)
   const [manual, setManual] = useState('')
   const [showFull, setShowFull] = useState(false)
-  const [showManual, setShowManual] = useState(false)
+  const [showManual, setShowManual] = useState(true)
   const [history, setHistory] = useState<ScanHistoryItem[]>(loadScanHistory)
 
   const stopScanner = () => {
@@ -44,10 +54,16 @@ export default function Scan() {
 
   useEffect(() => {
     if (phase.kind !== 'scanning') return
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCamError('Браузер не поддерживает доступ к камере. Введи код вручную — кнопка ниже.')
+      setShowManual(true)
+      setPhase({ kind: 'idle' })
+      return
+    }
     const reader = new BrowserMultiFormatReader(HINTS)
     let cancelled = false
     reader
-      .decodeFromVideoDevice(undefined, videoRef.current ?? undefined, (res) => {
+      .decodeFromConstraints(CAMERA_CONSTRAINTS, videoRef.current ?? undefined, (res) => {
         if (res && !cancelled) {
           const code = res.getText()
           cancelled = true
@@ -56,11 +72,18 @@ export default function Scan() {
         }
       })
       .then(c => { if (!cancelled) controlsRef.current = c; else c.stop() })
-      .catch(() => {
-        if (!cancelled) {
-          setCamError('Не удалось открыть камеру. Разреши доступ к камере в браузере или введи код вручную.')
-          setPhase({ kind: 'idle' })
-        }
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const name = err instanceof DOMException ? err.name : ''
+        setCamError(
+          name === 'NotAllowedError'
+            ? 'Нет доступа к камере: нажми «Разрешить» во всплывающем запросе браузера. Если запретил раньше — открой настройки сайта в браузере и разреши камеру. Или введи код вручную.'
+            : name === 'NotFoundError'
+              ? 'Камера не найдена на устройстве. Введи код вручную.'
+              : `Не удалось открыть камеру${name ? ` (${name})` : ''}. Попробуй ещё раз или введи код вручную.`,
+        )
+        setShowManual(true)
+        setPhase({ kind: 'idle' })
       })
     return () => { cancelled = true; stopScanner() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,8 +132,9 @@ export default function Scan() {
               <div className="w-3/4 h-1/3 border-2 border-emerald-400 rounded-xl shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
             </div>
           </div>
+          <div className="mt-2 text-center text-xs text-stone-400">Идёт поиск кода — держи штрих-код внутри рамки, при плохом свете включи фонарик телефона</div>
           <button onClick={() => { stopScanner(); setPhase({ kind: 'idle' }) }}
-            className="mt-3 w-full py-3 rounded-2xl border border-stone-200 bg-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-stone-50 transition">
+            className="mt-2 w-full py-3 rounded-2xl border border-stone-200 bg-white text-sm font-medium flex items-center justify-center gap-2 hover:bg-stone-50 transition">
             <CameraOff size={16} /> Остановить камеру
           </button>
         </div>
