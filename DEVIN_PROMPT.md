@@ -8,12 +8,11 @@
 
 ## Репозитории и расположение кода
 
-ВАЖНО: на GitHub сейчас лежит только собранный статический сайт (ветка `gh-pages` репозитория https://github.com/abmwm4-byte/ingredient-analyzer). Исходники — локально на машине автора:
+Исходники на GitHub (публичные, запушены 24.08.2026):
 
-1. **Парсеры**: `~/edostavka_parser` (Python 3, venv в `~/edostavka_parser/venv`)
-2. **Веб-приложение**: `~/ingredient_analyzer/app` (React 18 + TypeScript + Vite + Tailwind 3.4 + shadcn/ui)
-
-ПЕРЕД НАЧАЛОМ РАБОТЫ: попроси автора запушить оба исходника на GitHub (приватные репозитории) и дать тебе доступ. Без этого ты увидишь только минифицированную сборку.
+1. **Парсеры**: https://github.com/abmwm4-byte/edostavka_parser (Python 3; локально `~/edostavka_parser`, venv в `venv/` — не в репо, создавай заново). В репо есть данные: `shops_output/`, `shops_history/`, `composition_ocr.json`. НЕ включены: фото составов (`composition_photos/`, `coffeemania_photos/`), `venv/`, `.pw-browsers/`, дебаг и логи.
+2. **Веб-приложение**: https://github.com/abmwm4-byte/ingredient-analyzer-src (React 18 + TypeScript + Vite + Tailwind 3.4 + shadcn/ui; приложение в `app/`, локально `~/ingredient_analyzer`). В репо есть `app/public/data/*.json` и рабочие xlsx/csv в корне. НЕ включены: `node_modules/`, `dist/`, `.npm-cache/`.
+3. Собранный статический сайт: ветка `gh-pages` репозитория https://github.com/abmwm4-byte/ingredient-analyzer (деплой на GitHub Pages).
 
 ## Архитектура и поток данных
 
