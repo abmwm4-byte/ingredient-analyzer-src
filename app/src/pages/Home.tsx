@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { ArrowRight, Search, ShieldCheck, ShieldAlert, Leaf, AlertTriangle, HelpCircle } from 'lucide-react'
+import { ArrowRight, Search, ShieldCheck, ShieldAlert, Leaf, AlertTriangle, HelpCircle, ScanBarcode } from 'lucide-react'
 import { loadMeta, loadAdditives, imgUrl, fmtPrice } from '@/lib/data'
 import type { Meta, AdditiveRef } from '@/types'
 import { CATEGORIES, CAT_ICONS } from '@/types'
@@ -66,6 +66,9 @@ export default function Home() {
               Проверить
             </button>
           </form>
+          <Link to="/scan" className="mt-3 inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/10 hover:bg-white/20 transition text-sm font-medium">
+            <ScanBarcode size={18} /> Сканировать штрих-код камерой
+          </Link>
           <div className="mt-6 flex flex-wrap gap-2 text-xs">
             {['без глютена', 'без лактозы', 'без сахара', 'веганское'].map(f => (
               <Link key={f} to={`/catalog?diet=${f}`} className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 transition">

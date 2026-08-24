@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Catalog from './pages/Catalog'
 import ProductPage from './pages/ProductPage'
 import Additives from './pages/Additives'
+import Scan from './pages/Scan'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/catalog" element={<Catalog />} />
         <Route path="/product/:id" element={<ProductPage />} />
         <Route path="/additives" element={<Additives />} />
+        <Route path="/scan" element={<Scan />} />
       </Route>
     </Routes>
   )

@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
-import { FlaskConical, Home, ListFilter, RefreshCw, ScrollText } from 'lucide-react'
+import { FlaskConical, Home, ListFilter, RefreshCw, ScanBarcode, ScrollText } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { loadProducts } from '@/lib/data'
 
 const NAV = [
   { to: '/', label: 'Главная', icon: Home },
+  { to: '/scan', label: 'Сканер', icon: ScanBarcode },
   { to: '/catalog', label: 'Каталог', icon: ListFilter },
   { to: '/additives', label: 'Добавки', icon: ScrollText },
 ]
@@ -80,7 +81,7 @@ export default function Layout() {
       )}
 
       {/* Мобильная нижняя навигация */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-stone-200 grid grid-cols-3">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-stone-200 grid grid-cols-4">
         {NAV.map(n => (
           <NavLink key={n.to} to={n.to} end={n.to === '/'}
             className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium ${isActive ? 'text-emerald-700' : 'text-stone-400'}`}>
